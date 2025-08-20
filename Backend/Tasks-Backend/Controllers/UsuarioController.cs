@@ -19,6 +19,8 @@ namespace Tasks_Backend.Controllers
             _usuarioService = usuarioService;
         }
 
+        // [Authorize(Roles = "Administrador")]
+        [AuthorizeAdmin]
         [HttpPost]
         public async Task<ActionResult<Usuario>> CriarUsuario([FromBody] UsuarioDto dto)
         {
@@ -41,6 +43,17 @@ namespace Tasks_Backend.Controllers
         {
             var usuarios = await _usuarioService.ListarUsuarios();
             return Ok(usuarios);
+        }
+
+        [AuthorizeAdmin]
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Usuario>> AtualizarUsuario(int id, [FromBody] UsuarioDto dto)
+        {
+            var usuarioAtualizado = await _usuarioService.AtualizarUsuario(id, dto);
+            if (usuarioAtualizado == null)
+                return NotFound("Usuário não encontrado.");
+
+            return Ok(usuarioAtualizado);
         }
     }
 }
