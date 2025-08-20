@@ -19,6 +19,8 @@ namespace Tasks_Backend.Controllers
             _usuarioService = usuarioService;
         }
 
+        // [Authorize(Roles = "Administrador")]
+        [AuthorizeAdmin]
         [HttpPost]
         public async Task<ActionResult<Usuario>> CriarUsuario([FromBody] UsuarioDto dto)
         {
