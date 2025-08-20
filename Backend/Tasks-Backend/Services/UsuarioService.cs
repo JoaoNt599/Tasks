@@ -62,6 +62,21 @@ namespace Tasks_Backend.Services
             return await _context.Usuarios.ToListAsync();
         }
 
+        public async Task<Usuario?> AtualizarUsuario(int id, UsuarioDto dto)
+        {
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario == null)
+                return null;
+
+            usuario.Nome = dto.Nome;
+            usuario.Email = dto.Email;
+            usuario.Perfil = dto.Perfil;
+            usuario.SenhaHash = GerarHash(dto.Senha);
+
+            await _context.SaveChangesAsync();
+            return usuario;
+        }
+
         // JWT
         public string GerarToken(Usuario usuario)
         {
