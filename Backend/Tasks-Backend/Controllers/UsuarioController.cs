@@ -3,8 +3,11 @@ using Tasks_Backend.DTOs;
 using Tasks_Backend.Entities;
 using Tasks_Backend.Services;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace Tasks_Backend.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UsuarioController : ControllerBase

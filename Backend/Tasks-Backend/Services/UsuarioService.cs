@@ -6,6 +6,11 @@ using System.Security.Cryptography;
 using System.Text;
 using Tasks_Backend.DTOs;
 
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+
+
 namespace Tasks_Backend.Services
 {
     public class UsuarioService
@@ -19,7 +24,6 @@ namespace Tasks_Backend.Services
 
         public async Task<Usuario> CriarUsuario(UsuarioDto dto)
         {
-
             // Valida email duplicado
             var exists = await _context.Usuarios.AnyAsync(u => u.Email == dto.Email);
             if (exists)
@@ -56,6 +60,36 @@ namespace Tasks_Backend.Services
         public async Task<List<Usuario>> ListarUsuarios()
         {
             return await _context.Usuarios.ToListAsync();
+        }
+
+        // JWT
+        public string GerarToken(Usuario usuario)
+        {
+            var key = Encoding.UTF8.GetBytes("4WTH-51ZiC_ra1gU27q2_Tw61YdzxNiloZh5UHfRN82NcE-1wUThESXc7iWasGvPyYrjswNRWEn3PwAuwuv0dA");
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, usuario.Email),
+                new Claim(ClaimTypes.Role, usuario.Perfil.ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+            );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            Console.WriteLine($"Token gerado: {jwt}");
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<Usuario?> Autenticar(string email, string senha)
+        {
+            var senhaHash = GerarHash(senha);
+            return await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Email == email && u.SenhaHash == senhaHash);
         }
     }
 }

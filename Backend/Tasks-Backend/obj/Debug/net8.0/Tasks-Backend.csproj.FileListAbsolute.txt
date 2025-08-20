@@ -18,7 +18,6 @@ C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\
 C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
 C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
 C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
-C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.InMemory.dll
 C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
 C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.Extensions.Caching.Abstractions.dll
 C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.Extensions.Caching.Memory.dll
@@ -158,3 +157,12 @@ C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\
 C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\runtimes\win-arm64\native\e_sqlite3.dll
 C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\runtimes\win-x64\native\e_sqlite3.dll
 C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\runtimes\win-x86\native\e_sqlite3.dll
+C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\joaon\OneDrive\Área de Trabalho\Dev\Desafio\Backend\Tasks-Backend\obj\Debug\net8.0\Tasks-Backend.sourcelink.json
