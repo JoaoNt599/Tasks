@@ -49,6 +49,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=tasks.db"));
 
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<TarefaService>();
 
 // JWT
 builder.Services.AddAuthentication(options =>
@@ -109,6 +110,6 @@ app.UseAuthorization();
 // app.UseHttpsRedirection(); 
 
 app.MapControllers(); 
-app.MapGet("/health", () => "API rodando...");
+app.MapGet("/Health", () => "API rodando...");
 
 app.Run();
