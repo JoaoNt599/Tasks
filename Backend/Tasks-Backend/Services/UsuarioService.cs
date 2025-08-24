@@ -24,10 +24,25 @@ namespace Tasks_Backend.Services
 
         public async Task<Usuario> CriarUsuario(UsuarioDto dto)
         {
-            // Valida email duplicado
+            dto.Nome = dto.Nome?.Trim();
+            dto.Email = dto.Email?.Trim().ToLower();
+
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+                throw new ArgumentException("Campo 'Nome' é obrigatório.");
+
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                throw new ArgumentException("Campo 'Email' é obrigatório.");
+
+            if (string.IsNullOrWhiteSpace(dto.Senha) || dto.Senha.Length < 6)
+                throw new ArgumentException("A senha deve ter ao menos 6 caracteres.");
+            
+            if (!Enum.IsDefined(typeof(Perfil), dto.Perfil))
+                throw new ArgumentException("Perfil do usuário inválido.");
+
+            // Validar email duplicado
             var exists = await _context.Usuarios.AnyAsync(u => u.Email == dto.Email);
             if (exists)
-                return null; // TODO: Criar exceção personalizada
+                throw new ArgumentException("Já existe outro usuário com email informado.");
 
             var senhaHash = GerarHash(dto.Senha);
 
@@ -54,19 +69,55 @@ namespace Tasks_Backend.Services
 
         public async Task<Usuario?> ObterPorId(int id)
         {
-            return await _context.Usuarios.FindAsync(id);
+            if (id <= 0)
+                throw new ArgumentException("O ID do usuário deve ser um número positivo.");
+
+            var usuario = await _context.Usuarios.FindAsync(id);
+
+            if (usuario == null)
+                throw new KeyNotFoundException($"Usuário com ID {id} não encontrado.");
+
+            return usuario;
         }
 
         public async Task<List<Usuario>> ListarUsuarios()
         {
-            return await _context.Usuarios.ToListAsync();
+            var usuarios = await _context.Usuarios.ToListAsync();
+
+            if (usuarios == null || usuarios.Count == 0)
+                throw new InvalidOperationException("Nenhum usuário encontrado.");
+
+            return usuarios;
         }
 
         public async Task<Usuario?> AtualizarUsuario(int id, UsuarioDto dto)
         {
+            dto.Nome = dto.Nome?.Trim();
+            dto.Email = dto.Email?.Trim().ToLower();
+
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+                throw new ArgumentException("Campo 'Nome' é obrigatório.");
+
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                throw new ArgumentException("Campo 'Email' é obrigatório.");
+            
+            if (string.IsNullOrWhiteSpace(dto.Senha) || dto.Senha.Length < 6)
+                throw new ArgumentException("A senha deve ter ao menos 6 caracteres.");
+            
+            if (!Enum.IsDefined(typeof(Perfil), dto.Perfil))
+                throw new ArgumentException("Perfil do usuário inválido.");
+            
+            if (id <= 0)
+                throw new ArgumentException("O ID do usuário deve ser um número positivo.");
+            
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
-                return null;
+                throw new KeyNotFoundException($"Usuário com ID {id} não encontrado.");
+            
+            var emailExistente = await _context.Usuarios.AnyAsync(u => u.Email == dto.Email && u.Id != id);
+
+            if (emailExistente)
+                throw new ArgumentException("Já existe outro usuário com email informado.");
 
             usuario.Nome = dto.Nome;
             usuario.Email = dto.Email;

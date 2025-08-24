@@ -19,41 +19,102 @@ namespace Tasks_Backend.Controllers
             _usuarioService = usuarioService;
         }
 
-        // [Authorize(Roles = "Administrador")]
         [AuthorizeAdmin]
         [HttpPost]
-        public async Task<ActionResult<Usuario>> CriarUsuario([FromBody] UsuarioDto dto)
+        public async Task<ActionResult<UsuarioResponseDto>> CriarUsuario([FromBody] UsuarioDto dto)
         {
-            var usuario = await _usuarioService.CriarUsuario(dto);
-            return CreatedAtAction(nameof(ObterUsuarioPorId), new { id = usuario.Id }, usuario);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var usuario = await _usuarioService.CriarUsuario(dto);
+                var usuarioResponseDto = new UsuarioResponseDto
+                {
+                    Id = usuario.Id,
+                    Nome = usuario.Nome,
+                    Email = usuario.Email,
+                    Perfil = usuario.Perfil
+                };
+
+                return CreatedAtAction(nameof(ObterUsuarioPorId), new { id = usuario.Id }, usuarioResponseDto);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized("Usuário não autenticado.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro ao criar novo usuário: {ex.Message}");
+            }   
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Usuario>> ObterUsuarioPorId(int id)
+        public async Task<ActionResult<UsuarioResponseDto>> ObterUsuarioPorId(int id)
         {
             var usuario = await _usuarioService.ObterPorId(id);
             if (usuario == null)
                 return NotFound();
 
-            return Ok(usuario);
+            var usuarioResponseDto = new UsuarioResponseDto
+            {
+                Id = usuario.Id,
+                Nome = usuario.Nome,
+                Email = usuario.Email,
+                Perfil = usuario.Perfil
+            };
+
+            return Ok(usuarioResponseDto);
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Usuario>>> ListarUsuarios()
+        public async Task<ActionResult<List<UsuarioResponseDto>>> ListarUsuarios()
         {
             var usuarios = await _usuarioService.ListarUsuarios();
-            return Ok(usuarios);
+
+            var usuariosDto = usuarios.Select(u => new UsuarioResponseDto
+            {
+                Id = u.Id,
+                Nome = u.Nome,
+                Email = u.Email,
+                Perfil = u.Perfil
+            }).ToList();
+
+            return Ok(usuariosDto);
         }
 
         [AuthorizeAdmin]
         [HttpPut("{id}")]
-        public async Task<ActionResult<Usuario>> AtualizarUsuario(int id, [FromBody] UsuarioDto dto)
+        public async Task<ActionResult<UsuarioResponseDto>> AtualizarUsuario(int id, [FromBody] UsuarioDto dto)
         {
-            var usuarioAtualizado = await _usuarioService.AtualizarUsuario(id, dto);
-            if (usuarioAtualizado == null)
-                return NotFound("Usuário não encontrado.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            return Ok(usuarioAtualizado);
+            try
+            {
+                var usuarioAtualizado = await _usuarioService.AtualizarUsuario(id, dto);
+                if (usuarioAtualizado == null)
+                    return NotFound("Usuário não encontrado.");
+
+
+                var usuarioResponseDto = new UsuarioResponseDto
+                {
+                    Id = usuarioAtualizado.Id,
+                    Nome = usuarioAtualizado.Nome,
+                    Email = usuarioAtualizado.Email,
+                    Perfil = usuarioAtualizado.Perfil
+                };
+
+                return Ok(usuarioResponseDto);         
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized("Usuário não autenticado");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro ao atualizar usuário: {ex.Message}");
+            }
         }
     }
 }
