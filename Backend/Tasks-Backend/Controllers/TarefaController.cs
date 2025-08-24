@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tasks_Backend.DTOs;
 using Tasks_Backend.DTOs.Tarefa;
 using Tasks_Backend.Entities;
+using Tasks_Backend.enums;
 using Tasks_Backend.Services;
 
 
@@ -25,7 +26,7 @@ namespace Tasks_Backend.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-                
+
             try
             {
                 var tarefa = await _tarefaService.CriarTarefa(dto, User);
@@ -53,11 +54,14 @@ namespace Tasks_Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<TarefaDto>>> ListarTarefas()
+        public async Task<ActionResult<List<TarefaDto>>> ListarTarefas([FromQuery] int pagina = 1, [FromQuery] int tamanhoPagina = 5)
         {
+            if (pagina <= 0 || tamanhoPagina <= 0)
+                return BadRequest("Página e tamanho devem ser maiores que zero.");
+
             try
             {
-                var tarefas = await _tarefaService.ListarTarefas();
+                var tarefas = await _tarefaService.ListaPaginada(pagina, tamanhoPagina);
                 return Ok(tarefas);
             }
             catch (Exception ex)
@@ -70,7 +74,7 @@ namespace Tasks_Backend.Controllers
         public async Task<ActionResult<Tarefa>> ObterTarefaPorId(int id)
         {
             if (id <= 0)
-            return BadRequest("O ID da tarefa deve ser um número positivo.");
+                return BadRequest("O ID da tarefa deve ser um número positivo.");
 
             try
             {
@@ -78,7 +82,7 @@ namespace Tasks_Backend.Controllers
 
                 if (tarefa == null)
                     return NotFound("Tarefa não encontrada.");
-                
+
                 return Ok(tarefa);
             }
             catch (Exception ex)
@@ -92,7 +96,7 @@ namespace Tasks_Backend.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
+
             if (id <= 0)
                 return BadRequest("O ID da tarefa deve ser um número positivo.");
 
@@ -136,6 +140,26 @@ namespace Tasks_Backend.Controllers
             catch (Exception ex)
             {
                 return BadRequest($"Erro ao excluir tarefa: {ex.Message}");
+            }
+        }
+
+        [HttpGet("filtro")]
+        public async Task<ActionResult<List<TarefaDto>>> ListarPorStatus(
+            [FromQuery] Status status,
+            [FromQuery] int pagina = 1,
+            [FromQuery] int tamanhoPagina = 5)
+        {
+            if (pagina <= 0 || tamanhoPagina <= 0)
+                return BadRequest("Página e tamanho devem ser maiores que zero.");
+
+            try
+            {
+                var tarefas = await _tarefaService.FiltroPorStatus(status, pagina, tamanhoPagina);
+                return Ok(tarefas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao filtrar tarefas por status: {ex.Message}");
             }
         }
     }

@@ -27,7 +27,7 @@ namespace Tasks_Backend.Services
 
             if (string.IsNullOrWhiteSpace(dto.Descricao))
                 throw new ArgumentException("Campo 'Descricao' é obrigatório.");
-                
+
             if (!Enum.IsDefined(typeof(Status), dto.Status))
                 throw new ArgumentException("Status da tarefa inválido.");
 
@@ -66,7 +66,7 @@ namespace Tasks_Backend.Services
                 Id = t.Id,
                 Titulo = t.Titulo,
                 Descricao = t.Descricao,
-                ResponsavelId = t.ResponsavelId, 
+                ResponsavelId = t.ResponsavelId,
                 NomeResponsavel = t.Responsavel.Nome,
                 EmailResponsavel = t.Responsavel.Email,
                 Status = t.Status,
@@ -108,7 +108,7 @@ namespace Tasks_Backend.Services
 
             if (string.IsNullOrWhiteSpace(dto.Descricao))
                 throw new ArgumentException("Campo 'Descricao' é obrigatório.");
-                
+
             if (!Enum.IsDefined(typeof(Status), dto.Status))
                 throw new ArgumentException("Status da tarefa inválido.");
 
@@ -119,7 +119,7 @@ namespace Tasks_Backend.Services
             var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
             if (usuario == null)
                 throw new Exception("Usuário não encontrado");
-            
+
             var tarefa = await _context.Tarefas.Include(t => t.Responsavel).FirstOrDefaultAsync(t => t.Id == id);
             if (tarefa == null)
                 throw new KeyNotFoundException($"Tarefa com ID {id} não encontrada.");
@@ -179,6 +179,51 @@ namespace Tasks_Backend.Services
             _context.Tarefas.Remove(tarafa);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<List<TarefaDto>> ListaPaginada(int pagina, int tamanhoPagina)
+        {
+            var tarefas = await _context.Tarefas
+                .Include(t => t.Responsavel)
+                .OrderByDescending(t => t.DataCriacao)
+                .Skip((pagina - 1) * tamanhoPagina)
+                .Take(tamanhoPagina)
+                .ToListAsync();
+
+            return tarefas.Select(t => new TarefaDto
+            {
+                Id = t.Id,
+                Titulo = t.Titulo,
+                Descricao = t.Descricao,
+                ResponsavelId = t.ResponsavelId,
+                NomeResponsavel = t.Responsavel.Nome,
+                EmailResponsavel = t.Responsavel.Email,
+                Status = t.Status,
+                DataCriacao = t.DataCriacao
+            }).ToList();
+        }
+
+        public async Task<List<TarefaDto>> FiltroPorStatus(Status status, int pagina, int tamanhoPagina)
+        {
+            var tarefas = await _context.Tarefas
+                .Include(t => t.Responsavel)
+                .Where(t => t.Status == status)
+                .OrderByDescending(t => t.DataCriacao)
+                .Skip((pagina - 1) * tamanhoPagina)
+                .Take(tamanhoPagina)
+                .ToListAsync();
+
+            return tarefas.Select(t => new TarefaDto
+            {
+                Id = t.Id,
+                Titulo = t.Titulo,
+                Descricao = t.Descricao,
+                ResponsavelId = t.ResponsavelId,
+                NomeResponsavel = t.Responsavel.Nome,
+                EmailResponsavel = t.Responsavel.Email,
+                Status = t.Status,
+                DataCriacao = t.DataCriacao
+            }).ToList();
         }
     }
 }
