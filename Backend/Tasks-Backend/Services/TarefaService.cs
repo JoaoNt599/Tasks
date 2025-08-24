@@ -1,8 +1,9 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Tasks_Backend.Data;
-using Tasks_Backend.DTOs;
+using Tasks_Backend.DTOs.Tarefa;
 using Tasks_Backend.Entities;
+using Tasks_Backend.enums;
 
 namespace Tasks_Backend.Services
 {
@@ -17,6 +18,19 @@ namespace Tasks_Backend.Services
 
         public async Task<Tarefa> CriarTarefa(TarefaDto dto, ClaimsPrincipal user)
         {
+
+            dto.Titulo = dto.Titulo?.Trim();
+            dto.Descricao = dto.Descricao?.Trim();
+
+            if (string.IsNullOrWhiteSpace(dto.Titulo))
+                throw new ArgumentException("Campo 'Titulo' é obrigatório.");
+
+            if (string.IsNullOrWhiteSpace(dto.Descricao))
+                throw new ArgumentException("Campo 'Descricao' é obrigatório.");
+                
+            if (!Enum.IsDefined(typeof(Status), dto.Status))
+                throw new ArgumentException("Status da tarefa inválido.");
+
             // Obtém ID do usuário logado
             var email = user.Identity?.Name;
             if (string.IsNullOrEmpty(email))
@@ -52,7 +66,7 @@ namespace Tasks_Backend.Services
                 Id = t.Id,
                 Titulo = t.Titulo,
                 Descricao = t.Descricao,
-                ResponsavelId = t.ResponsavelId,
+                ResponsavelId = t.ResponsavelId, 
                 NomeResponsavel = t.Responsavel.Nome,
                 EmailResponsavel = t.Responsavel.Email,
                 Status = t.Status,
@@ -86,6 +100,18 @@ namespace Tasks_Backend.Services
 
         public async Task<TarefaDto?> AtualizarTarefa(int id, TarefaDto dto, ClaimsPrincipal user)
         {
+            dto.Titulo = dto.Titulo?.Trim();
+            dto.Descricao = dto.Descricao?.Trim();
+
+            if (string.IsNullOrWhiteSpace(dto.Titulo))
+                throw new ArgumentException("Campo 'Titulo' é obrigatório.");
+
+            if (string.IsNullOrWhiteSpace(dto.Descricao))
+                throw new ArgumentException("Campo 'Descricao' é obrigatório.");
+                
+            if (!Enum.IsDefined(typeof(Status), dto.Status))
+                throw new ArgumentException("Status da tarefa inválido.");
+
             var email = user.Identity?.Name;
             if (string.IsNullOrEmpty(email))
                 throw new UnauthorizedAccessException("Usuário não autenticado.");
@@ -93,6 +119,10 @@ namespace Tasks_Backend.Services
             var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
             if (usuario == null)
                 throw new Exception("Usuário não encontrado");
+            
+            var tarefa = await _context.Tarefas.Include(t => t.Responsavel).FirstOrDefaultAsync(t => t.Id == id);
+            if (tarefa == null)
+                throw new KeyNotFoundException($"Tarefa com ID {id} não encontrada.");
 
             var tarafa = await _context.Tarefas.Include(t => t.Responsavel).FirstOrDefaultAsync(t => t.Id == id);
             if (tarafa == null)

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Tasks_Backend.enums;
 
-namespace Tasks_Backend.DTOs
+namespace Tasks_Backend.DTOs.Tarefa
 {
     public class TarefaDto
     {

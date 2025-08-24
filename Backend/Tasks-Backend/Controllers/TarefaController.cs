@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tasks_Backend.DTOs;
+using Tasks_Backend.DTOs.Tarefa;
 using Tasks_Backend.Entities;
 using Tasks_Backend.Services;
 
@@ -20,12 +21,26 @@ namespace Tasks_Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Tarefa>> CriarTarefa([FromBody] TarefaDto dto)
+        public async Task<ActionResult<TarefaResponseDto>> CriarTarefa([FromBody] TarefaDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+                
             try
             {
                 var tarefa = await _tarefaService.CriarTarefa(dto, User);
-                return CreatedAtAction(nameof(ObterTarefaPorId), new { id = tarefa.Id }, tarefa);
+                var tarefaResponseDto = new TarefaResponseDto
+                {
+                    Id = tarefa.Id,
+                    Titulo = tarefa.Titulo,
+                    Descricao = tarefa.Descricao,
+                    ResponsavelId = tarefa.ResponsavelId,
+                    NomeResponsavel = tarefa.Responsavel.Nome,
+                    Status = tarefa.Status,
+                    DataCriacao = tarefa.DataCriacao
+                };
+
+                return CreatedAtAction(nameof(ObterTarefaPorId), new { id = tarefa.Id }, tarefaResponseDto);
             }
             catch (UnauthorizedAccessException)
             {
@@ -33,31 +48,54 @@ namespace Tasks_Backend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Erro ao criar nova tarafa: {ex.Message}");
+                return BadRequest($"Erro ao criar nova tarefa: {ex.Message}");
             }
         }
 
         [HttpGet]
         public async Task<ActionResult<List<TarefaDto>>> ListarTarefas()
         {
-            var tarafas = await _tarefaService.ListarTarefas();
-            return Ok(tarafas);
+            try
+            {
+                var tarefas = await _tarefaService.ListarTarefas();
+                return Ok(tarefas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno ao listar tarefas: {ex.Message}");
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Tarefa>> ObterTarefaPorId(int id)
         {
-            var tarafa = await _tarefaService.BuscarPorId(id);
+            if (id <= 0)
+            return BadRequest("O ID da tarefa deve ser um número positivo.");
 
-            if (tarafa == null)
-                return NotFound("Tarefa não encontrada.");
+            try
+            {
+                var tarefa = await _tarefaService.BuscarPorId(id);
 
-            return Ok(tarafa);
+                if (tarefa == null)
+                    return NotFound("Tarefa não encontrada.");
+                
+                return Ok(tarefa);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno ao buscar tarefa: {ex.Message}");
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<TarefaDto>> AtualizarTarefa(int id, [FromBody] TarefaDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            
+            if (id <= 0)
+                return BadRequest("O ID da tarefa deve ser um número positivo.");
+
             try
             {
                 var tarefaAtualizada = await _tarefaService.AtualizarTarefa(id, dto, User);
@@ -79,6 +117,10 @@ namespace Tasks_Backend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletarTarefa(int id)
         {
+
+            if (id <= 0)
+                return BadRequest("O ID da tarefa deve ser um número positivo.");
+
             try
             {
                 var sucesso = await _tarefaService.DeletarTarefa(id, User);
